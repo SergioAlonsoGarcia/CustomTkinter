@@ -1,4 +1,4 @@
-DROP DATABASE IF EXISTS `aplicacion`;
+-- DROP DATABASE IF EXISTS `aplicacion`;
 
 CREATE DATABASE IF NOT EXISTS `aplicacion`;
 

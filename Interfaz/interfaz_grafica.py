@@ -72,7 +72,6 @@ class Login:
             conexion.commit()
             cursor.close()
 
-            # Guardamos el nombre de la base en un archivo
             with open("bd_actual.txt", "w") as f:
                 f.write(nombre_bd)
 
@@ -334,6 +333,7 @@ class crearCuenta:
             cursor.execute(sql, (self.correo.get(), self.usuario.get(), self.contraseña.get(),icono_ruta ))
             conexion.commit()
             cursor.close()
+
             messagebox.showinfo("Exito","Cuenta creada correctamente")
             self.root.destroy() 
             Login() 
@@ -376,3 +376,4 @@ class principal():
 #     principal()
 # else:
 #     Login()
+
