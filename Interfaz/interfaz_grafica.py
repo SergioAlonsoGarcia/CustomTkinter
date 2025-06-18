@@ -44,23 +44,44 @@ class Login:
         global conexion
 
         try:
-            conexion=pymysql.connect(user="root",port=3306,host="localhost")
-            cursor=conexion.cursor()
-            cursor.execute("CREATE DATABASE IF NOT EXISTS `NOLOSE`")
-            conexion=pymysql.connect(user="root",port=3306,host="localhost",database="NOLOSE",passwd="")
-            cursor=conexion.cursor()
-            cursor.execute("""CREATE TABLE IF NOT EXISTS `usuarios`(
-            `correo` VARCHAR(60) NOT NULL PRIMARY KEY,
-            `usuario` VARCHAR (50) NOT NULL,
-            `contraseña` VARCHAR (50) NOT NULL,
-            `icono` VARCHAR (255)
-            )""")
+            with open("base_de_datos.sql", "r", encoding="utf-8") as f:
+                script = f.read()
+
+            # Buscar nombre de base de datos
+            match = re.search(r'CREATE DATABASE IF NOT EXISTS\s+[`"]?(\w+)[`"]?;', script, re.IGNORECASE)
+
+            if not match: 
+                messagebox.showerror(title="Error", message="No se encontró")
+                return
+
+            nombre_bd = match.group(1)
+
+            # Conexión sin base de datos
+            conexion = pymysql.connect(
+                host="localhost",
+                user="root",
+                password="" 
+            )
+
+            with conexion.cursor() as cursor:
+                comandos = script.split(';')
+                for comando in comandos:
+                    if comando.strip():
+                        cursor.execute(comando)
+
             conexion.commit()
-            # cursor.execute("""INSERT INTO `usuarios`(`correo`,`usuario`,`contraseña`,`icono`) VALUES ('1','1','1','d:\Nomas\CTkinter\Interfaz\imagenes\iconoPerfil.jpg')
-                        #    """)
-            conexion.commit()
-        except pymysql.MySQLError as e :
-            messagebox.showerror("Error",f"¡Error! {e}")
+            cursor.close()
+
+            # Guardamos el nombre de la base en un archivo
+            with open("bd_actual.txt", "w") as f:
+                f.write(nombre_bd)
+
+
+        except Exception as e:
+            messagebox.showerror(title="Error", message=f"Ocurrió un error:\n{e}")
+
+        # except pymysql.MySQLError as e :
+        #     messagebox.showerror("Error",f"¡Error! {e}")
 
         self.root = ctk.CTk()
         self.root.title("Login")
@@ -285,7 +306,7 @@ class crearCuenta:
                 self.error=ctk.CTkLabel(self.root,text_color=("red","red"),text="Correo no valido.")
                 self.error.pack()
 
-            return  # Salir de la función si el correo no es válido
+            return  
 
         # if self.icono_usuario:
             # Puedes usar la ruta completa o mover la imagen a una carpeta específica para evitar problemas de rutas
